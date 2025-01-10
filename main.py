@@ -1,10 +1,7 @@
 # Players will choose between who will go first. X or O.
-# Players will play their turn with the input from 1 to 9
+# Players will play their turn with the input from 0 to 8.
 
-# Removed unused import
-# import pandas as pd
-
-board_slots = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+board_slots = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
 
 def update_board():
@@ -43,6 +40,14 @@ def check_win_pattern(symbol):
     return False
 
 
+def check_draw():
+    global board_slots
+    for slot in board_slots:
+        if slot in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
+            return False
+    return True
+
+
 current_player = None
 player_one = None
 player_two = None
@@ -51,6 +56,9 @@ game_mode = "on"
 win = False
 
 while game_mode != "exit":
+    # Reset board slots
+    board_slots = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
     # Set player one and two.
     print("You have to select who goes first. X or O?")
     player_one = input().upper()
@@ -68,16 +76,35 @@ while game_mode != "exit":
     print(board)
     while not win:
         try:
-            choice = int(input(f"Player {current_player}, place your {current_player} (0-8): "))
-            if board_slots[choice] == 0:
+            choice = int(
+                input(f"Player {current_player}, place your {current_player} (0-8): ")
+            )
+            if board_slots[choice] in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
                 board_slots[choice] = current_player
                 update_board()
                 print(board)
                 win = check_win_pattern(current_player)
+                draw = check_draw()
                 if win:
                     print(f"Player {current_player} wins!")
+
+                    # Play Again?
+                    play_again = input("Play Again (Y/N): ").lower()
+                    while play_again not in ["y", "n"]:
+                        play_again = input("Play Again (Y/N): ").lower()
+                    game_mode = "exit" if play_again == "n" else game_mode
                     break
-                current_player = player_two if current_player == player_one else player_one
+                elif draw:
+                    print(f"Its a Draw!")
+                    # Play Again?
+                    play_again = input("Play Again (Y/N): ").lower()
+                    while play_again not in ["y", "n"]:
+                        play_again = input("Play Again (Y/N): ").lower()
+                    game_mode = "exit" if play_again == "n" else game_mode
+                    break
+                current_player = (
+                    player_two if current_player == player_one else player_one
+                )
             else:
                 print("Slot already taken, choose another slot.")
         except ValueError:
